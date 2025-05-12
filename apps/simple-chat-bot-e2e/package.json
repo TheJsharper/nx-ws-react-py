@@ -1,0 +1,10 @@
+{
+  "name": "simple-chat-bot-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "implicitDependencies": [
+      "simple-chat-bot"
+    ]
+  }
+}

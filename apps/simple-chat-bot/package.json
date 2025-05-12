@@ -1,0 +1,8 @@
+{
+  "name": "@nx-ws-react-py/simple-chat-bot",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "name": "simple-chat-bot"
+  }
+}
