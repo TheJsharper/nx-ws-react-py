@@ -23,6 +23,7 @@
     "@nx/web": "21.0.3",
     "@nx/webpack": "21.0.3",
     "@nx/workspace": "21.0.3",
+    "@nxlv/python": "^21.0.0",
     "@playwright/test": "^1.36.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
     "@svgr/webpack": "^8.0.1",
