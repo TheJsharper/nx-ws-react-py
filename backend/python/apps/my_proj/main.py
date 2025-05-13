@@ -6,6 +6,7 @@ from  websockets.exceptions import ConnectionClosed
 from httpx import RequestError
 import httpx 
 import random
+import uuid
 app = FastAPI()
 ENDPOINT = "http://127.0.0.1:39281/v1"
 MODEL = "llama3.2:1b"
@@ -42,26 +43,26 @@ async def websocket_endpoint(websocket: WebSocket):
                     messages=[{"role": "user", "content": data}],
                     stream=True
                 )
-                await websocket.send_json({"status": "start_streaming", "message_status": "success", "data": data})
+                await websocket.send_json({"id": uuid.uuid4(), "status": "start_streaming_ai", "message_status": "success", "text": data, "sender":"ai"})
 
                 async for chunk in response:
                     if chunk.choices[0].delta.content:
                         print(chunk.choices[0].delta.content)
                         chat_bot_data = chunk.choices[0].delta.content
-                        await websocket.send_json({"status": "streaming", "message_status": "success", "data": chat_bot_data})
+                        await websocket.send_json({"id": uuid.uuid4(), "status": "streaming_ai", "message_status": "success", "text": chat_bot_data, "sender":"ai"})
             except RequestError as e:
                 print(f"Connection error: {e}")
                 error_message ="Error: Unable to connect to the server."
-                await websocket.send_json({"status": "error", "message_status": "error", "data": error_message})
+                await websocket.send_json({"id": uuid.uuid4(), "status": "error", "message_status": "error", "text": error_message, "sender":"ai"})
                 break
             except Exception as e:
                 print(f"Unexpected error: {e}")
                 error_message = "Error: An unexpected error occurred. ===> Error: Unable to process your request."
-                await websocket.send_json({"status": "error", "message_status": "error", "data": error_message})
+                await websocket.send_json({"id": uuid.uuid4(), "status": "error", "message_status": "error", "text": error_message, "sender":"ai"})
                 break
-            await websocket.send_json({"status": "end_streaming", "message_status": "success", "data": "End of stream."})
+            await websocket.send_json({"id": uuid.uuid4(), "status": "end_streaming_ai", "message_status": "success", "text": "End of stream.", "sender":"ai"})
     except Exception as e:
-        await websocket.send_json({"status": "error", "message_status": "error", "data": "Error: WebSocket connection closed."})
+        await websocket.send_json({"id": uuid.uuid4(), "status": "error", "message_status": "error", "text": "Error: WebSocket connection closed.", "sender":"ai"})
         print(f"Error during WebSocket communication: {e}")
     finally:
         await websocket.close()
@@ -73,7 +74,7 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         try:
             data = await websocket.receive_text()
-            print(f"Received data: {data}")
+            print(f"Received text: {data}")
             # Send message to the client
             resp = {'value': random.uniform(0, 1)}
             await websocket.send_json(resp)
