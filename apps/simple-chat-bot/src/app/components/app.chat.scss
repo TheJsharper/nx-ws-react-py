@@ -3,7 +3,8 @@
   display: flex;
   flex-direction: column;
   height: calc(100vh - 41px);
-  max-width: 600px;
+  min-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -26,7 +27,6 @@
 }
 
 .chat-bubble {
-  max-width: 70%;
   margin: 5px 0;
   padding: 10px;
   border-radius: 10px;
