@@ -6,8 +6,6 @@ from  websockets.exceptions import ConnectionClosed
 from httpx import RequestError
 import httpx 
 import random
-
-import uvicorn
 app = FastAPI()
 ENDPOINT = "http://127.0.0.1:39281/v1"
 MODEL = "llama3.2:1b"
