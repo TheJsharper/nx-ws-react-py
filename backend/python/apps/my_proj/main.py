@@ -11,7 +11,7 @@ ENDPOINT = "http://127.0.0.1:39281/v1"
 MODEL = "llama3.2:1b"
 # Health check for the endpoint
 try:
-    response = httpx.get(f"{ENDPOINT}.client.chat.completions")
+    response = httpx.get(f"{ENDPOINT}/chat/completions")
     if response.status_code == 200:
         print(f"Server at {ENDPOINT} is healthy.")
     else:
