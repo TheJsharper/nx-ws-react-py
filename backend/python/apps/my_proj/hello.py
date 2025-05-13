@@ -1,6 +1,8 @@
 """Sample Hello World application."""
+from fastapi import FastAPI
 
+app = FastAPI()
 
+@app.get("/")   
 def hello():
-    """Return a friendly greeting."""
-    return "Hello my_proj"
+    return {"message": "Hello World!"}

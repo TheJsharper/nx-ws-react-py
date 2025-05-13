@@ -2,7 +2,9 @@
   "name": "@nx-ws-react-py/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "start:fastapi": "cd  backend/python/apps/my_proj/ && python -m uvicorn main:app --reload "
+  },
   "private": true,
   "dependencies": {
     "react": "19.0.0",
