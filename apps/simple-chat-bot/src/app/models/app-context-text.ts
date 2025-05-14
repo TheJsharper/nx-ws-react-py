@@ -26,7 +26,14 @@ export const initialChats: ChatType[] = [
 ];
 
 // Create contexts
-export const AppChatsContext = createContext<Partial<AppChatContextType>>({});
+export const AppChatsContext = createContext<AppChatContextType>({
+
+  chats: initialChats,
+  setChats: () => {
+    // Default function to avoid undefined error
+  }
+  , 
+});
 
 export const AppChatInputContext = createContext<Partial<AppChatInputContextType>>({});
 

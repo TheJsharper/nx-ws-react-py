@@ -43,26 +43,26 @@ async def websocket_endpoint(websocket: WebSocket):
                     messages=[{"role": "user", "content": data}],
                     stream=True
                 )
-                await websocket.send_json({"id": uuid.uuid4(), "status": "start_streaming_ai", "message_status": "success", "text": data, "sender":"ai"})
+                await websocket.send_json({"id": str(uuid.uuid4()), "status": "start_streaming_ai", "message_status": "success", "text": data, "sender":"ai"})
 
                 async for chunk in response:
                     if chunk.choices[0].delta.content:
                         print(chunk.choices[0].delta.content)
                         chat_bot_data = chunk.choices[0].delta.content
-                        await websocket.send_json({"id": uuid.uuid4(), "status": "streaming_ai", "message_status": "success", "text": chat_bot_data, "sender":"ai"})
+                        await websocket.send_json({"id": str(uuid.uuid4()), "status": "streaming_ai", "message_status": "success", "text": chat_bot_data, "sender":"ai"})
             except RequestError as e:
                 print(f"Connection error: {e}")
                 error_message ="Error: Unable to connect to the server."
-                await websocket.send_json({"id": uuid.uuid4(), "status": "error", "message_status": "error", "text": error_message, "sender":"ai"})
+                await websocket.send_json({"id": str(uuid.uuid4()), "status": "error", "message_status": "error", "text": error_message, "sender":"ai"})
                 break
             except Exception as e:
                 print(f"Unexpected error: {e}")
                 error_message = "Error: An unexpected error occurred. ===> Error: Unable to process your request."
-                await websocket.send_json({"id": uuid.uuid4(), "status": "error", "message_status": "error", "text": error_message, "sender":"ai"})
+                await websocket.send_json({"id": str(uuid.uuid4()), "status": "error", "message_status": "error", "text": error_message, "sender":"ai"})
                 break
-            await websocket.send_json({"id": uuid.uuid4(), "status": "end_streaming_ai", "message_status": "success", "text": "End of stream.", "sender":"ai"})
+            await websocket.send_json({"id": str(uuid.uuid4()), "status": "end_streaming_ai", "message_status": "success", "text": "End of stream.", "sender":"ai"})
     except Exception as e:
-        await websocket.send_json({"id": uuid.uuid4(), "status": "error", "message_status": "error", "text": "Error: WebSocket connection closed.", "sender":"ai"})
+        await websocket.send_json({"id": str(uuid.uuid4()), "status": "error", "message_status": "error", "text": "Error: WebSocket connection closed.", "sender":"ai"})
         print(f"Error during WebSocket communication: {e}")
     finally:
         await websocket.close()
