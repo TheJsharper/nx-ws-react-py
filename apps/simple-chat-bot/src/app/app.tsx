@@ -11,8 +11,8 @@ export function App() {
         <div className='container-fluid'>
           <Routes >
             <Route path="/" element={<Chat/>} />
-            <Route path="orders" element={<div> Orders</div>} />
-            <Route path="carts" element={<div> carts</div>} />
+            <Route path="train" element={<div> LLMS Train</div>} />
+            <Route path="llm-rag" element={<div> LLM RAG</div>} />
             <Route path="*" element={<Navigate replace to="/" />} />
           </Routes>
         </div>

@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { useChatContext } from "../hooks/chat-context";
 import { ChatType } from "../models/app-context-text";
 import { uuidv4 } from "../utils/app.utils";
-import "./app.chat.scss"; 
+import "./app.chat.scss";
 
 const Chat = () => {
 
 
   const [inputState, setInputState] = useState("");
+
   const [inputFlag, setInputFalg] = useState(false);
+
   const ws = useRef<WebSocket>(null);
 
   const { chats, setChats } = useChatContext();
@@ -16,7 +18,9 @@ const Chat = () => {
 
   const handleSend = () => {
     if (inputState.trim() && chats && setChats) {
-      setChats([...chats, { id: uuidv4().toString(), text: inputState, sender: "user", status: "streaming_user", message_status: "success" }]);
+      const askChat = { id: uuidv4().toString(), text: inputState, sender: "user", status: "streaming_user", message_status: "success" };
+      chats.push(askChat);
+      setChats([...chats]);
 
       setInputFalg(true);
     }
@@ -33,8 +37,8 @@ const Chat = () => {
       const message: ChatType = JSON.parse(e.data);
       if (message.status === "start_streaming_ai" && setChats && chats) {
         chunkId = message.id;
-        // setChats([...chats, {...message}]);
         chats.push(message);
+        setChats([...chats]);
         console.log("start_streaming_ai", chats);
       }
       if (message.status === "streaming_ai" && setChats && chats) {
@@ -98,14 +102,6 @@ const Chat = () => {
             {chat.text}
           </div>
         ))}
-        {/*{messages.map((message) => (
-          <div
-            key={message.id}
-            className={`chat-bubble ${message.sender === "user" ? "user" : "ai"}`}
-          >
-            {message.text}
-          </div>
-        ))}*/}
       </div>
       <div className="chat-input">
         <input

@@ -9,13 +9,13 @@ const HostNav: React.FC = () => {
   return (
     <ul className="nav nav-tabs">
       <li className="nav-item">
-        <NavLink className={navStyleClass} to="/">Products</NavLink>
+        <NavLink className={navStyleClass} to="/">Chat AI</NavLink>
       </li>
       <li className="nav-item">
-        <NavLink className={navStyleClass} to="/orders">Orders</NavLink>
+        <NavLink className={navStyleClass} to="/train">LLMS</NavLink>
       </li>
       <li className='nav-item'>
-        <NavLink className={navStyleClass} to="/carts">Carts</NavLink>
+        <NavLink className={navStyleClass} to="/llm-rag">LLM RAG</NavLink>
       </li>
     </ul>
   );
