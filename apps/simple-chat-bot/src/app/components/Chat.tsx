@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from "react";
 import { useChatContext } from "../hooks/chat-context";
 import { ChatType } from "../models/app-context-text";
@@ -14,8 +15,6 @@ const Chat = () => {
   const ws = useRef<WebSocket>(null);
 
   const { chats, setChats } = useChatContext();
-  // const { input, setInput } = useInputContext();
-
   const handleSend = () => {
     if (inputState.trim() && chats && setChats) {
       const askChat = { id: uuidv4().toString(), text: inputState, sender: "user", status: "streaming_user", message_status: "success" };
@@ -55,7 +54,6 @@ const Chat = () => {
         if (indexId !== -1) {
           const currentChat = chats[indexId];
           currentChat.text += " " + message.text;
-          // setChats([...chats, currentChat]);
         }
         setInputFalg(false);
         chunkId = "";
