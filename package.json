@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "start:fastapi": "cd  backend/python/apps/my_proj/ && python -m uvicorn main:app --reload "
+    "start:fastapi": "cd  backend/python/apps/my_proj/ && python -m uvicorn main:app --reload ",
+    "start:exec-llama": "docker exec -it cortex cortex run llama3.2:1b",
+    "start:run-llama": "docker run -it -d --name cortex -p 39281:39281 menloltd/cortex"
   },
   "private": true,
   "dependencies": {

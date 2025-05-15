@@ -35,8 +35,8 @@ const Chat = () => {
       if (inputFlag) return;
       const message: ChatType = JSON.parse(e.data);
       if (message.status === "start_streaming_ai" && setChats && chats) {
-        chunkId = message.id;
         chats.push(message);
+        chunkId = message.id;
         setChats([...chats]);
         console.log("start_streaming_ai", chats);
       }
@@ -54,9 +54,9 @@ const Chat = () => {
         if (indexId !== -1) {
           const currentChat = chats[indexId];
           currentChat.text += " " + message.text;
+          setInputFalg(false);
+          chunkId = "";
         }
-        setInputFalg(false);
-        chunkId = "";
       }
 
       console.log("data", message);
