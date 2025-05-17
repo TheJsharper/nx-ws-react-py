@@ -7,6 +7,7 @@ from httpx import RequestError
 import httpx 
 import random
 import uuid
+import asyncstdlib as a
 app = FastAPI()
 ENDPOINT = "http://127.0.0.1:39281/v1"
 MODEL = "llama3.2:1b"
@@ -43,13 +44,16 @@ async def websocket_endpoint(websocket: WebSocket):
                     messages=[{"role": "user", "content": data}],
                     stream=True
                 )
-                await websocket.send_json({"id": str(uuid.uuid4()), "status": "start_streaming_ai", "message_status": "success", "text": data, "sender":"ai"})
+              #  await websocket.send_json({"id": str(uuid.uuid4()), "status": "start_streaming_ai", "message_status": "success", "text": data, "sender":"ai"})
 
-                async for chunk in response:
+                async for index, chunk in a.enumerate(response):
                     if chunk.choices[0].delta.content:
                         print(chunk.choices[0].delta.content)
                         chat_bot_data = chunk.choices[0].delta.content
-                        await websocket.send_json({"id": str(uuid.uuid4()), "status": "streaming_ai", "message_status": "success", "text": chat_bot_data, "sender":"ai"})
+                        if(index == 0):
+                            await websocket.send_json({"id": str(uuid.uuid4()), "status": "start_streaming_ai", "message_status": "success", "text": chat_bot_data, "sender":"ai"})
+                        else:    
+                            await websocket.send_json({"id": str(uuid.uuid4()), "status": "streaming_ai", "message_status": "success", "text": chat_bot_data, "sender":"ai"})
             except RequestError as e:
                 print(f"Connection error: {e}")
                 error_message ="Error: Unable to connect to the server."

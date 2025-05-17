@@ -29,16 +29,29 @@ const Chat = () => {
     ws.current = new WebSocket("ws://127.0.0.1:8000/chat");
     ws.current.onopen = () => console.log("ws opened");
     ws.current.onclose = () => console.log("ws closed");
+    ws.current.onerror = (e) => console.error("====> error ocurred ", e)
 
     let chunkId = "";
     ws.current.onmessage = e => {
       if (inputFlag) return;
       const message: ChatType = JSON.parse(e.data);
       if (message.status === "start_streaming_ai" && setChats && chats) {
-        chats.push(message);
-        chunkId = message.id;
-        setChats([...chats]);
-        console.log("start_streaming_ai", chats);
+
+        const indexId = chats.findIndex((chat) => chat.id === chunkId);
+        if (indexId !== -1) {
+          const currentChat = chats[indexId];
+          if (currentChat.sender === "user") {
+
+            setChats([...chats, currentChat]);
+          }
+        } else {
+            chats.push(message);
+            chunkId = message.id;
+            setChats([...chats]);
+            console.log("start_streaming_ai", chats);
+          }
+
+
       }
       if (message.status === "streaming_ai" && setChats && chats) {
         const indexId = chats.findIndex((chat) => chat.id === chunkId);
