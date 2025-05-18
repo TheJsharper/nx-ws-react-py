@@ -19,8 +19,8 @@ const Chat = () => {
     if (inputState.trim() && chats && setChats) {
       const askChat = { id: uuidv4().toString(), text: inputState, sender: "user", status: "streaming_user", message_status: "success" };
       chats.push(askChat);
-      setChats([...chats]);
-
+      //setChats([...chats, askChat]);
+      console.log("INPUT", chats);
       setInputFalg(true);
     }
   };
@@ -35,38 +35,31 @@ const Chat = () => {
     ws.current.onmessage = e => {
       if (inputFlag) return;
       const message: ChatType = JSON.parse(e.data);
-      if (message.status === "start_streaming_ai" && setChats && chats) {
-
-        const indexId = chats.findIndex((chat) => chat.id === chunkId);
-        if (indexId !== -1) {
-          const currentChat = chats[indexId];
-          if (currentChat.sender === "user") {
-
-            setChats([...chats, currentChat]);
-          }
-        } else {
-            chats.push(message);
-            chunkId = message.id;
-            setChats([...chats]);
-            console.log("start_streaming_ai", chats);
-          }
+      if (message.status === "start_streaming_ai" && setChats && chats && message.sender === "ai") {
+        chats.push(message);
+        chunkId = message.id;
+        setChats([...chats]);
+        console.log("start_streaming_ai", chats);
 
 
       }
-      if (message.status === "streaming_ai" && setChats && chats) {
+      if (message.status === "streaming_ai" && setChats && chats && message.sender === "ai") {
         const indexId = chats.findIndex((chat) => chat.id === chunkId);
         if (indexId !== -1) {
           const currentChat = chats[indexId];
           currentChat.text += " " + message.text;
+          //chats.push(currentChat);
           setChats([...chats]);
+          // chunkId = "";
         }
 
       }
-      if (message.status === "end_streaming_ai" && setChats && chats) {
+      if (message.status === "end_streaming_ai" && setChats && chats && message.sender === "ai") {
         const indexId = chats.findIndex((chat) => chat.id === chunkId);
         if (indexId !== -1) {
           const currentChat = chats[indexId];
           currentChat.text += " " + message.text;
+           //  setChats([...chats, currentChat]);
           setInputFalg(false);
           chunkId = "";
         }
