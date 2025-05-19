@@ -4,7 +4,25 @@ import { createContext, ReactNode } from "react";
 export interface AppChatContextType {
   chats: ChatType[];
   setChats: (chats: ChatType[]) => void;
+  setChat: (chat: ChatType)=> void;
 }
+
+export const initialChats: ChatType[] = [
+  { id: "1", text: "Hello! How can I help you? Implementation", sender: "ai", status: "streaming_ai", message_status: "success" },
+  { id: "2", text: "What is the weather today?", sender: "user", status: "streaming_user", message_status: "success" },
+];
+export class AppChatContextTypeImpl/* implements AppChatContextType*/{
+  chats: ChatType[] =  initialChats;
+  setChats: (chats: ChatType[]) => void = (chatsParam)=>{
+    console.log("CALLLing ", chatsParam)
+    this.chats = [...chatsParam]; 
+  }
+  /*setChat: (chat: ChatType) => void = (chat: ChatType) =>{
+    this.chats.push(chat);
+  };*/
+  
+}
+export const initialContextChat  = new  AppChatContextTypeImpl();
 
 export interface AppChatInputContextType {
   input: Partial<ChatType>;
@@ -20,20 +38,22 @@ export interface ChatType {
 }
 
 // Initial values for chats
-export const initialChats: ChatType[] = [
-  { id: "1", text: "Hello! How can I help you?", sender: "ai", status: "streaming_ai", message_status: "success" },
-  { id: "2", text: "What is the weather today?", sender: "user", status: "streaming_user", message_status: "success" },
-];
+
 
 // Create contexts
-export const AppChatsContext = createContext<AppChatContextType>({
+export const AppChatsContext = createContext<AppChatContextTypeImpl>(initialContextChat/*{
 
   chats: initialChats,
   setChats: () => {
     // Default function to avoid undefined error
+    console.log("calling set")
   }
   , 
-});
+  setChat: (chat:ChatType)=>{
+    // Default function to avoid undefined error
+
+  }
+}*/);
 
 export const AppChatInputContext = createContext<Partial<AppChatInputContextType>>({});
 

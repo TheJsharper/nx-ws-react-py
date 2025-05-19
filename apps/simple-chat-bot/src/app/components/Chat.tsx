@@ -11,16 +11,21 @@ const Chat = () => {
   const [inputState, setInputState] = useState("");
 
   const [inputFlag, setInputFalg] = useState(false);
-
+  
+  const [inputHndler, setInputHndler] = useState(false);
+  
   const ws = useRef<WebSocket>(null);
 
-  const { chats, setChats } = useChatContext();
+  const context = useChatContext();
   const handleSend = () => {
-    if (inputState.trim() && chats && setChats) {
-      const askChat = { id: uuidv4().toString(), text: inputState, sender: "user", status: "streaming_user", message_status: "success" };
-      chats.push(askChat);
-      //setChats([...chats, askChat]);
-      console.log("INPUT", chats);
+    if (inputState.trim() ) {
+     const askChat = { id: uuidv4().toString(), text: inputState, sender: "user", status: "streaming_user", message_status: "success" };
+      context.setChats([...context.chats,askChat])
+    
+     // context.setChats([...context.chats, askChat]);
+     // context.setChat(askChat)
+     // console.log("INPUT", chats);
+     setInputHndler(true);
       setInputFalg(true);
     }
   };
@@ -35,31 +40,37 @@ const Chat = () => {
     ws.current.onmessage = e => {
       if (inputFlag) return;
       const message: ChatType = JSON.parse(e.data);
-      if (message.status === "start_streaming_ai" && setChats && chats && message.sender === "ai") {
-        chats.push(message);
+      if (message.status === "start_streaming_ai" && message.sender === "ai") {
+       // chats.push(message);
         chunkId = message.id;
-        setChats([...chats]);
-        console.log("start_streaming_ai", chats);
+        //context.setChats([...context.chats, message])
+         context.chats = [...context.chats, message]
+        context.setChats([...context.chats]);
+        console.log("start_streaming_ai", context.chats);
 
 
       }
-      if (message.status === "streaming_ai" && setChats && chats && message.sender === "ai") {
-        const indexId = chats.findIndex((chat) => chat.id === chunkId);
+      if (message.status === "streaming_ai" && message.sender === "ai") {
+        const indexId = context.chats.findIndex((chat) => chat.id === chunkId);
         if (indexId !== -1) {
-          const currentChat = chats[indexId];
+          const currentChat = context.chats[indexId];
           currentChat.text += " " + message.text;
           //chats.push(currentChat);
-          setChats([...chats]);
+          //context.setChats([...context.chats, currentChat,])
+          context.chats = [...context.chats.filter((c)=> c.id !== chunkId), {...currentChat}]
+         context.setChats([...context.chats]);
           // chunkId = "";
         }
 
       }
-      if (message.status === "end_streaming_ai" && setChats && chats && message.sender === "ai") {
-        const indexId = chats.findIndex((chat) => chat.id === chunkId);
+      if (message.status === "end_streaming_ai" && message.sender === "ai") {
+        const indexId = context.chats.findIndex((chat) => chat.id === chunkId);
         if (indexId !== -1) {
-          const currentChat = chats[indexId];
+          const currentChat = context.chats[indexId];
           currentChat.text += " " + message.text;
-           //  setChats([...chats, currentChat]);
+             //context.setChats([...context.chats])
+             context.chats = [...context.chats.filter((c)=> c.id !== chunkId), {...currentChat}]
+              context.setChats([...context.chats]);
           setInputFalg(false);
           chunkId = "";
         }
@@ -80,12 +91,18 @@ const Chat = () => {
   useEffect(() => {
 
     if (!ws.current) return;
+   
     if (inputFlag && inputState.trim().length > 0) {
       ws.current.send(inputState);
       console.log("USEFFECT send", inputState);
       setInputState("");
     }
   }, [inputFlag]);
+
+  useEffect(()=>{
+        /*const askChat = { id: uuidv4().toString(), text: inputState, sender: "user", status: "streaming_user", message_status: "success" };
+      context.setChats([...context.chats,askChat]);*/
+  },[inputHndler] )
 
 
 
@@ -98,7 +115,7 @@ const Chat = () => {
         <h1>Chat with AI</h1>
       </div>
       <div className="chat-messages">
-        {chats?.map((chat, index: number) => (
+        {context.chats?.map((chat, index: number) => (
           <div
             key={index}
             className={`chat-bubble ${chat.sender === "user" ? "user" : "ai"}`}
@@ -119,7 +136,7 @@ const Chat = () => {
           }}
           onChange={(e) => setInputState(e.target.value)}
         />
-        <button onClick={handleSend}>Send</button>
+        <button onClick={()=>handleSend()}>Send</button>
       </div>
     </div>
   );
