@@ -17,7 +17,8 @@ const Chat = () => {
   const ws = useRef<WebSocket>(null);
 
   const context = useChatContext();
-  const handleSend = () => {
+  const handleSend = (e:any) => {
+    e.preventDefault();
     if (inputState.trim() ) {
      const askChat = { id: uuidv4().toString(), text: inputState, sender: "user", status: "streaming_user", message_status: "success" };
       context.setChats([...context.chats,askChat])
@@ -131,12 +132,12 @@ const Chat = () => {
           value={inputState}
           onKeyDown={event => {
             if (event.key === 'Enter') {
-              handleSend();
+              handleSend(event);
             }
           }}
           onChange={(e) => setInputState(e.target.value)}
         />
-        <button onClick={()=>handleSend()}>Send</button>
+        <button onClick={(e)=>handleSend(e)}>Send</button>
       </div>
     </div>
   );
