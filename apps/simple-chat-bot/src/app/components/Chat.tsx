@@ -1,38 +1,44 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import { useChatContext } from "../hooks/chat-context";
 import { ChatType } from "../models/app-context-text";
 import { uuidv4 } from "../utils/app.utils";
 import "./app.chat.scss";
+import { ActionTypes, AppContextType } from "../contexts/app.chats-context.provider";
 
-const Chat = () => {
+const Chat = (context: AppContextType) => {
 
+  // const context: AppContextType = useChatContext();
 
   const [inputState, setInputState] = useState("");
 
   const [inputFlag, setInputFalg] = useState(false);
-  
-  const [inputHndler, setInputHndler] = useState(false);
-  
-  const ws = useRef<WebSocket>(null);
 
-  const context = useChatContext();
-  const handleSend = (e:any) => {
+  const [inputHndler, setInputHndler] = useState(false);
+
+  const [chatMessages, setChatMessages] = useState<ChatType[]>([])
+
+  const ws = useRef<WebSocket>(new WebSocket("ws://127.0.0.1:8000/chat"));
+
+  const handleSend = (e: any) => {
     e.preventDefault();
-    if (inputState.trim() ) {
-     const askChat = { id: uuidv4().toString(), text: inputState, sender: "user", status: "streaming_user", message_status: "success" };
-      context.setChats([...context.chats,askChat])
-    
-     // context.setChats([...context.chats, askChat]);
-     // context.setChat(askChat)
-     // console.log("INPUT", chats);
-     setInputHndler(true);
+    if (inputState.trim()) {
+      const askChat = { id: uuidv4().toString(), text: inputState, sender: "user", status: "streaming_user", message_status: "success" };
+      // context.setChats([...context.chats, askChat])
+      const current = [...context.state.chats, askChat];
+      context.dispatch({ type: ActionTypes.ADD_MESSAGE, payload: [askChat] });
+      chatMessages.push(askChat)
+      setChatMessages([...chatMessages])
+
+
+      setInputHndler(true);
       setInputFalg(true);
     }
   };
 
   useEffect(() => {
-    ws.current = new WebSocket("ws://127.0.0.1:8000/chat");
+    //context =  useChatContext();
+    //ws.current = new WebSocket("ws://127.0.0.1:8000/chat");
     ws.current.onopen = () => console.log("ws opened");
     ws.current.onclose = () => console.log("ws closed");
     ws.current.onerror = (e) => console.error("====> error ocurred ", e)
@@ -42,36 +48,43 @@ const Chat = () => {
       if (inputFlag) return;
       const message: ChatType = JSON.parse(e.data);
       if (message.status === "start_streaming_ai" && message.sender === "ai") {
-       // chats.push(message);
+        // chats.push(message);
         chunkId = message.id;
         //context.setChats([...context.chats, message])
-         context.chats = [...context.chats, message]
+        /*context.chats = [...context.chats, message]
         context.setChats([...context.chats]);
-        console.log("start_streaming_ai", context.chats);
+        console.log("start_streaming_ai", context.chats);*/
+        // const current = [...context.state.chats, message];
+        context.dispatch({ type: ActionTypes.ADD_MESSAGE, payload: [message] });
 
+        chatMessages.push(message)
+        setChatMessages([...chatMessages])
 
       }
       if (message.status === "streaming_ai" && message.sender === "ai") {
-        const indexId = context.chats.findIndex((chat) => chat.id === chunkId);
+        const indexId = context.state.chats.findIndex((chat) => chat.id === chunkId);
         if (indexId !== -1) {
-          const currentChat = context.chats[indexId];
+          const currentChat = context.state.chats[indexId];
           currentChat.text += " " + message.text;
           //chats.push(currentChat);
           //context.setChats([...context.chats, currentChat,])
-          context.chats = [...context.chats.filter((c)=> c.id !== chunkId), {...currentChat}]
-         context.setChats([...context.chats]);
-          // chunkId = "";
+          const current = [...context.state.chats.filter((c) => c.id !== chunkId), { ...currentChat }]
+          context.dispatch({ type: ActionTypes.ADD_MESSAGE, payload: current });
+          setChatMessages([...chatMessages.filter((c) => c.id !== chunkId), ])
+          chatMessages.push(currentChat);
         }
 
       }
       if (message.status === "end_streaming_ai" && message.sender === "ai") {
-        const indexId = context.chats.findIndex((chat) => chat.id === chunkId);
+        const indexId = context.state.chats.findIndex((chat) => chat.id === chunkId);
         if (indexId !== -1) {
-          const currentChat = context.chats[indexId];
+          const currentChat = context.state.chats[indexId];
           currentChat.text += " " + message.text;
-             //context.setChats([...context.chats])
-             context.chats = [...context.chats.filter((c)=> c.id !== chunkId), {...currentChat}]
-              context.setChats([...context.chats]);
+          //context.setChats([...context.chats])
+          const current = [...context.state.chats.filter((c) => c.id !== chunkId), { ...currentChat }]
+          context.dispatch({ type: ActionTypes.ADD_MESSAGE, payload: current });
+          setChatMessages([...chatMessages.filter((c) => c.id !== chunkId)]);
+           chatMessages.push(currentChat);
           setInputFalg(false);
           chunkId = "";
         }
@@ -80,11 +93,10 @@ const Chat = () => {
       console.log("data", message);
     };
 
-    const wsCurrent = ws.current;
-    console.log("WebSocket opened");
+    console.log("WebSocket opened INIT");
 
     return () => {
-      wsCurrent.close();
+      ws.current.close();
       console.log("WebSocket closed");
     };
   }, []);
@@ -92,7 +104,7 @@ const Chat = () => {
   useEffect(() => {
 
     if (!ws.current) return;
-   
+
     if (inputFlag && inputState.trim().length > 0) {
       ws.current.send(inputState);
       console.log("USEFFECT send", inputState);
@@ -100,10 +112,10 @@ const Chat = () => {
     }
   }, [inputFlag]);
 
-  useEffect(()=>{
-        /*const askChat = { id: uuidv4().toString(), text: inputState, sender: "user", status: "streaming_user", message_status: "success" };
-      context.setChats([...context.chats,askChat]);*/
-  },[inputHndler] )
+  useEffect(() => {
+    /*const askChat = { id: uuidv4().toString(), text: inputState, sender: "user", status: "streaming_user", message_status: "success" };
+  context.setChats([...context.chats,askChat]);*/
+  }, [inputHndler])
 
 
 
@@ -116,7 +128,7 @@ const Chat = () => {
         <h1>Chat with AI</h1>
       </div>
       <div className="chat-messages">
-        {context.chats?.map((chat, index: number) => (
+        {chatMessages.map((chat, index: number) => (
           <div
             key={index}
             className={`chat-bubble ${chat.sender === "user" ? "user" : "ai"}`}
@@ -137,7 +149,7 @@ const Chat = () => {
           }}
           onChange={(e) => setInputState(e.target.value)}
         />
-        <button onClick={(e)=>handleSend(e)}>Send</button>
+        <button onClick={(e) => handleSend(e)}>Send</button>
       </div>
     </div>
   );

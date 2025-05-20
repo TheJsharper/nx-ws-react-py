@@ -41,19 +41,7 @@ export interface ChatType {
 
 
 // Create contexts
-export const AppChatsContext = createContext<AppChatContextTypeImpl>(initialContextChat/*{
-
-  chats: initialChats,
-  setChats: () => {
-    // Default function to avoid undefined error
-    console.log("calling set")
-  }
-  , 
-  setChat: (chat:ChatType)=>{
-    // Default function to avoid undefined error
-
-  }
-}*/);
+export const AppChatsContext = createContext<AppChatContextTypeImpl>(initialContextChat);
 
 export const AppChatInputContext = createContext<Partial<AppChatInputContextType>>({});
 
